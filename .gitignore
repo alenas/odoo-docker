@@ -1,1 +1,4 @@
 .idea
+14.0/odoo_14.0+e.latest_all.deb
+14.0/odoo.conf
+set-env-pwd.sh

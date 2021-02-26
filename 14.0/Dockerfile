@@ -1,7 +1,4 @@
 FROM debian:buster-slim
-MAINTAINER Odoo S.A. <info@odoo.com>
-
-SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 
 # Generate locale C.UTF-8 for postgres and general locale data
 ENV LANG C.UTF-8
@@ -53,15 +50,12 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ buster-pgdg main' > /etc/
 # Install rtlcss (on Debian buster)
 RUN npm install -g rtlcss
 
+COPY ./odoo_14.0+e.latest_all.deb /
 # Install Odoo
 ENV ODOO_VERSION 14.0
-ARG ODOO_RELEASE=20210217
-ARG ODOO_SHA=1a117bc676fbd84af93be716fde456c1477bb82d
-RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
-    && echo "${ODOO_SHA} odoo.deb" | sha1sum -c - \
-    && apt-get update \
-    && apt-get -y install --no-install-recommends ./odoo.deb \
-    && rm -rf /var/lib/apt/lists/* odoo.deb
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends ./odoo_14.0+e.latest_all.deb \
+    && rm ./odoo_14.0+e.latest_all.deb
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
