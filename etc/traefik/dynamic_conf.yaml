@@ -4,7 +4,7 @@ http:
       entryPoints: web
       middlewares: secure_mw
       service: odoo_service
-      rule: "Host(`pir.lt`)"
+      rule: "PathPrefix(`/`)"
 
     to_odoo_longpolling:
       entryPoints: web
@@ -16,7 +16,8 @@ http:
       service: odoo_service
       rule: "Host(`odo.pir.lt`)"
       tls:
-        domains: "odo.pir.lt"
+        domains: 
+        - "odo.pir.lt"
         certResolver: le
 
     to_odoo_longpolling_secure:
@@ -24,7 +25,8 @@ http:
       service: odoo_longpolling
       rule: "PathPrefix(`/longpolling`)"
       tls:
-        domains: "odo.pir.lt"
+        domains: 
+        - "odo.pir.lt"
         certResolver: le
 
   services:

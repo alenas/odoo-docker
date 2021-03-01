@@ -1,12 +1,11 @@
 #!/bin/bash
 podname=odoo
-version=14.0e
 
 ### check if install is already there
-if [ -f set-env-pwd.sh ]; then
-    echo 'Seems like there is an existing install, exiting!'
-    exit 1
-fi
+# if [ -f set-env-pwd.sh ]; then
+#     echo 'Seems like there is an existing install, exiting!'
+#     exit 1
+# fi
 
 mkdir -p /$podname/data
 chmod 777 /$podname/data
@@ -33,7 +32,7 @@ fi
 if [ ! -f /$podname/proxy/traefik.yaml ]; then
     echo 'Copying proxy config...'
     cp ./etc/traefik/* /$podname/proxy/
-    chmod 666 /$podname/proxy/*
+    chmod -R 666 /$podname/proxy
 fi
 
 
@@ -67,6 +66,6 @@ podman run -d --name $podname-app --pod $podname \
     -e PASSWORD=$MYSQLPWD \
     -v /$podname/data:/var/lib/odoo \
     -v /$podname/config:/etc/odoo \
-        localhost/al3nas/odoo:14.0
+        localhost/al3nas/odoo:14.0.1
         
 echo 'DONE !'
