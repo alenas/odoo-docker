@@ -1,0 +1,44 @@
+http:
+  routers:
+    to_odoo:
+      entryPoints: web
+      middlewares: secure_mw
+      service: odoo_service
+      rule: "Host(`pir.lt`)"
+
+    to_odoo_longpolling:
+      entryPoints: web
+      service: odoo_longpolling
+      rule: "PathPrefix(`/longpolling`)"
+
+    to_odoo_secure:
+      entryPoints: web-secure
+      service: odoo_service
+      rule: "Host(`odo.pir.lt`)"
+      tls:
+        domains: "odo.pir.lt"
+        certResolver: le
+
+    to_odoo_longpolling_secure:
+      entryPoints: web-secure
+      service: odoo_longpolling
+      rule: "PathPrefix(`/longpolling`)"
+      tls:
+        domains: "odo.pir.lt"
+        certResolver: le
+
+  services:
+    odoo_service:
+      loadBalancer:
+        servers:
+        - url: "http://127.0.0.7:8069/"
+
+    odoo_longpolling:
+      loadBalancer:
+        servers:
+        - url: "http://127.0.0.7:8072/"
+
+  middlewares:
+    secure_mw:
+      redirectScheme:
+        scheme: https

@@ -1,0 +1,33 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+log:
+  level: "DEBUG"
+  filePath: "/etc/traefik/full.log"
+
+accessLog:
+  filePath: "/etc/traefik/access.log"
+
+api:
+  insecure: true
+  dashboard: true
+
+entryPoints:
+  web:
+    address: ":80"
+  web-secure:
+    address: ":443"
+
+providers:
+  file:
+    filename: /etc/traefik/dynamic_conf.yaml
+    watch: false
+
+certificatesResolvers:
+  le:
+    acme:
+      email: agedvilas@gmail.com
+      storage: acme.json
+      httpChallenge:
+        entryPoint: web
