@@ -33,12 +33,12 @@ http:
     odoo_service:
       loadBalancer:
         servers:
-        - url: "http://127.0.0.7:8069/"
+        - url: "http://127.0.0.1:8069/"
 
     odoo_longpolling:
       loadBalancer:
         servers:
-        - url: "http://127.0.0.7:8072/"
+        - url: "http://127.0.0.1:8072/"
 
   middlewares:
     secure_mw:
