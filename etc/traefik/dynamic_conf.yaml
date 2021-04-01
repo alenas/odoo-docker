@@ -1,23 +1,30 @@
 http:
   routers:
-    to_odoo:
+    to_redirect:
       entryPoints: web
-      middlewares: secure_mw
+      middlewares:
+        - "www-redirect"
       service: odoo_service
       rule: "PathPrefix(`/`)"
 
-    to_odoo_longpolling:
-      entryPoints: web
-      service: odoo_longpolling
-      rule: "PathPrefix(`/longpolling`)"
+    to_redirect2:
+      entryPoints: web-secure
+      middlewares:
+        - "www-redirect"
+      service: odoo_service
+      rule: "Host(`www.pir.lt`)"
+      tls:
+        domains:
+        - "www.pir.lt"
+        certResolver: le
 
     to_odoo_secure:
       entryPoints: web-secure
       service: odoo_service
-      rule: "Host(`odo.pir.lt`)"
+      rule: "Host(`pir.lt`)"
       tls:
         domains: 
-        - "odo.pir.lt"
+        - "pir.lt"
         certResolver: le
 
     to_odoo_longpolling_secure:
@@ -26,7 +33,7 @@ http:
       rule: "PathPrefix(`/longpolling`)"
       tls:
         domains: 
-        - "odo.pir.lt"
+        - "pir.lt"
         certResolver: le
 
   services:
@@ -41,6 +48,9 @@ http:
         - url: "http://127.0.0.1:8072/"
 
   middlewares:
-    secure_mw:
-      redirectScheme:
-        scheme: https
+    www-redirect:
+      redirectRegex:
+        regex: "^https?://(www.)?pir.lt(.*)"
+        replacement: "https://pir.lt"
+        permanent: true
+

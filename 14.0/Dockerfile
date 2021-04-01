@@ -2,6 +2,9 @@ FROM debian:buster-slim
 
 # Generate locale C.UTF-8 for postgres and general locale data
 ENV LANG C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+
+ENV ODOO_VERSION 14.0
 
 # Install some deps, lessc and less-plugin-clean-css
 RUN apt-get update && \
@@ -54,10 +57,10 @@ RUN npm install -g rtlcss
 
 COPY ./odoo.deb /odoo.deb
 # Install Odoo
-ENV ODOO_VERSION 14.0
 RUN apt-get update \
-    && apt-get -y install --no-install-recommends ./odoo.deb \
-    && rm ./odoo.deb
+    && apt-get -y install --no-install-recommends /odoo.deb \
+    && rm /odoo.deb \
+    && apt-get clean all
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
@@ -69,6 +72,9 @@ RUN chown odoo /etc/odoo/odoo.conf \
     && chown -R odoo /mnt/extra-addons
 VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 
+# Set default user when running the container
+USER odoo
+
 # Expose Odoo services
 EXPOSE 8069 8072
 
@@ -76,9 +82,6 @@ EXPOSE 8069 8072
 ENV ODOO_RC /etc/odoo/odoo.conf
 
 COPY wait-for-psql.py /usr/local/bin/wait-for-psql.py
-
-# Set default user when running the container
-USER odoo
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["odoo"]

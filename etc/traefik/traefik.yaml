@@ -10,8 +10,8 @@ accessLog:
   filePath: "/etc/traefik/access.log"
 
 api:
-  insecure: true
-  dashboard: true
+  insecure: false
+  dashboard: false
 
 entryPoints:
   web:

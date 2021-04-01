@@ -38,7 +38,7 @@ fi
 
 echo 'Creating pod: ' $podname
 ### create pod
-podman pod create -n $podname --network=static --hostname www.pir.lt \
+podman pod create -n $podname --network=podman --hostname pir.lt \
     --runtime=/usr/lib/cri-o-runc/sbin/runc \
     -p 80:80/tcp -p 443:443/tcp -p 8080:8080/tcp
 
@@ -56,7 +56,7 @@ podman run -d --name $podname-db --pod $podname \
         docker.io/library/postgres:13-alpine
 
 echo 'Running traefik reverse-proxy...'
-podman run -d --name reverse-proxy --pod $podname \
+podman run -d --name $podname-proxy --pod $podname \
     --runtime=/usr/lib/cri-o-runc/sbin/runc \
     -v /$podname/proxy:/etc/traefik \
         docker.io/library/traefik:2.4
@@ -70,6 +70,6 @@ podman run -d --name $podname-app --pod $podname \
     -e PASSWORD=$MYSQLPWD \
     -v /$podname/data:/var/lib/odoo \
     -v /$podname/config:/etc/odoo \
-        localhost/al3nas/odoo:14.0.1
+        localhost/al3nas/odoo:14.0
         
 echo 'DONE !'
