@@ -1,18 +1,11 @@
 #!/bin/bash
 podname=odoo
 
-### check if install is already there
-# if [ -f set-env-pwd.sh ]; then
-#     echo 'Seems like there is an existing install, exiting!'
-#     exit 1
-# fi
-
 mkdir -p /$podname/data
-chmod 777 /$podname/data
 mkdir -p /$podname/config
-chmod 777 /$podname/config
+mkdir -p /$podname/addons
+
 mkdir -p /$podname/proxy
-chmod 666 /$podname/proxy
 
 mkdir -p /$podname/db
 
@@ -58,7 +51,7 @@ podman run -d --name $podname-db --pod $podname \
 echo 'Running traefik reverse-proxy...'
 podman run -d --name $podname-proxy --pod $podname \
     --runtime=/usr/lib/cri-o-runc/sbin/runc \
-    -v /$podname/proxy:/etc/traefik \
+    -v /$podname/proxy:/etc/traefik:U \
         docker.io/library/traefik:2.4
 
 echo 'Running APP container: ' $podname-app
@@ -68,8 +61,9 @@ podman run -d --name $podname-app --pod $podname \
     -e HOST=127.0.0.1 \
     -e USER=odoo \
     -e PASSWORD=$MYSQLPWD \
-    -v /$podname/data:/var/lib/odoo \
-    -v /$podname/config:/etc/odoo \
+    -v /$podname/data:/var/lib/odoo:U \
+    -v /$podname/config:/etc/odoo:U \
+    -v /$podname/addons:/mnt/extra-addons:U \
         localhost/al3nas/odoo:14.0
         
 echo 'DONE !'
