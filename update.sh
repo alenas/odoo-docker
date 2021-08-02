@@ -1,6 +1,6 @@
 #!/bin/bash
 podname=odoo
-version=14.0.5.11
+version=14.0.8.02
 
 ### check if install is already there
 if [ ! -f set-env-pwd.sh ]; then
@@ -19,12 +19,13 @@ systemctl disable container-$podname-proxy
 # in case pod was started not from systemctl
 podman pod stop $podname
 
-echo 'Backing up...'
-#rsync -a /odoo/ ~/backup/odoo-dir-bkp.$(date +%Y%m%d-%H.%M.%S)
+#echo 'Backing up...'
+rsync -a /odoo/ ~/backup/odoo-dir-bkp.$(date +%Y%m%d-%H.%M.%S)
 podman rm $podname-app
 
 echo 'Creating APP container: ' $podname-app
 podman create --name $podname-app --pod $podname \
+    --security-opt seccomp=unconfined \
     --runtime=/usr/lib/cri-o-runc/sbin/runc \
     -e HOST=127.0.0.1 \
     -e USER=odoo \
@@ -33,8 +34,8 @@ podman create --name $podname-app --pod $podname \
     -v /$podname/config:/etc/odoo \
     -v /$podname/odoo-addons:/mnt/extra-addons \
         localhost/al3nas/odoo:$version
-        
-echo "Creating new PBX services"
+
+echo "Creating new services"
 podman generate systemd -f -n -t=30 $podname
 mv -f *.service /etc/systemd/system/
 
@@ -44,4 +45,6 @@ systemctl enable container-$podname-proxy
 systemctl enable container-$podname-app
 systemctl enable container-$podname-db
 
-#systemctl start pod-$podname
+systemctl start pod-$podname
+
+echo "Finished ..."
