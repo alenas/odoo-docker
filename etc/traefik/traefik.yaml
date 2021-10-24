@@ -1,9 +1,9 @@
 global:
-  checkNewVersion: true
+  checkNewVersion: false
   sendAnonymousUsage: false
 
 log:
-  level: "DEBUG"
+  level: "ERROR"
   filePath: "/etc/traefik/full.log"
 
 accessLog:
@@ -22,7 +22,7 @@ entryPoints:
 providers:
   file:
     filename: /etc/traefik/dynamic_conf.yaml
-    watch: false
+    watch: true
 
 certificatesResolvers:
   le:
