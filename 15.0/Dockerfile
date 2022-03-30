@@ -5,9 +5,11 @@ SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
 
 # Generate locale C.UTF-8 for postgres and general locale data
 ENV LANG C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
 RUN apt-get update && \
+    apt-get upgrade && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
@@ -57,19 +59,23 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /et
 # Install rtlcss (on Debian buster)
 RUN npm install -g rtlcss
 
+# Update pip and install pysftp for backups
+RUN pip3 install --upgrade pip
+RUN pip3 install pysftp==0.2.8
+
+COPY ./odoo.deb /odoo.deb
 # Install Odoo
 ENV ODOO_VERSION 15.0
-ARG ODOO_RELEASE=20211018
-ARG ODOO_SHA=41ddb9e8ea942595786c000f87fc1e045470b2b7
-RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
-    && echo "${ODOO_SHA} odoo.deb" | sha1sum -c - \
-    && apt-get update \
-    && apt-get -y install --no-install-recommends ./odoo.deb \
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends /odoo.deb \
     && rm -rf /var/lib/apt/lists/* odoo.deb
+
+# Additional odoo modules
+#RUN pip3 install odoo14-addon-attachment-unindex-content odoo14-addon-auto-backup odoo14-addon-account-invoice-force-number odoo14-addon-mail-debrand odoo14-addon-web-decimal-numpad-dot google_auth
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
-COPY ./odoo.conf /etc/odoo/
+COPY ../odoo.conf /etc/odoo/
 
 # Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
 RUN chown odoo /etc/odoo/odoo.conf \

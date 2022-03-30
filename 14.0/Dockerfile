@@ -65,7 +65,7 @@ COPY ./odoo.deb /odoo.deb
 # Install Odoo
 RUN apt-get update \
     && apt-get -y install --no-install-recommends /odoo.deb \
-    && rm /odoo.deb \
+    && rm /odoo.deb
 
 # Additional odoo modules
 RUN pip3 install odoo14-addon-attachment-unindex-content odoo14-addon-auto-backup odoo14-addon-account-invoice-force-number odoo14-addon-mail-debrand odoo14-addon-web-decimal-numpad-dot google_auth
@@ -74,7 +74,7 @@ RUN apt-get clean all
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
-COPY ./odoo.conf /etc/odoo/
+COPY ../odoo.conf /etc/odoo/
 
 # Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
 RUN chown odoo /etc/odoo/odoo.conf \

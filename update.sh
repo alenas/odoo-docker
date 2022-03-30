@@ -1,6 +1,6 @@
 #!/bin/bash
 podname=odoo
-version=14.0.$(date +%m.%d)
+version=15.0.$(date +%m.%d)
 
 ### check if install is already there
 if [ ! -f set-env-pwd.sh ]; then
@@ -20,13 +20,30 @@ systemctl disable container-$podname-proxy
 podman pod stop $podname
 
 #echo 'Backing up...'
-rsync -a /odoo/ ~/backup/odoo-dir-bkp.$(date +%Y%m%d-%H.%M.%S)
-podman rm $podname-app
+rsync -a --exclude=/odoo/data/backups/ /odoo/ ~/backup/odoo-dir-bkp.$(date +%Y%m%d-%H.%M.%S)
+
+# echo 'Updating Traefik: ' $podname-proxy
+# podman rm $podname-proxy
+# podman create --name $podname-proxy --pod $podname \
+#     --cgroups=disabled \
+#     -v /$podname/proxy:/etc/traefik \
+#         docker.io/library/traefik:2.6
+
+# echo 'Updating DB container: ' $podname-db
+# podman rm $podname-db
+# podman create --name $podname-db --pod $podname \
+#     --cgroups=disabled \
+#     -v /$podname/db:/var/lib/postgresql/data \
+#     -e POSTGRES_USER=odoo \
+#     -e POSTGRES_PASSWORD=$MYSQLPWD \
+#     -e POSTGRES_DB=postgres \
+#         docker.io/library/postgres:14-alpine
+
 
 echo 'Creating APP container: ' $podname-app
+podman rm $podname-app
 podman create --name $podname-app --pod $podname \
-    --security-opt seccomp=unconfined \
-    --runtime=/usr/lib/cri-o-runc/sbin/runc \
+    --cgroups=disabled \
     -e HOST=127.0.0.1 \
     -e USER=odoo \
     -e PASSWORD=$MYSQLPWD \
