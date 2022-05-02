@@ -1,6 +1,6 @@
 #!/bin/bash
 podname=odoo
-version=14.0.$(date +%m.%d)
+version=14.0.05.02
 
 ### check if install is already there
 if [ ! -f set-env-pwd.sh ]; then
@@ -8,37 +8,14 @@ if [ ! -f set-env-pwd.sh ]; then
      exit 1
 fi
 
-. set-env-pwd.sh
-
 systemctl stop pod-$podname
 systemctl disable pod-$podname
 systemctl disable container-$podname-app
 systemctl disable container-$podname-db
 systemctl disable container-$podname-proxy
 
-# in case pod was started not from systemctl
-podman pod stop $podname
 
-#echo 'Backing up...'
-rsync -ah --info=progress2 --exclude=/odoo/data/backups/ --exclude=/odoo/data/odoo.log /odoo/ ~/backup/odoo-dir-bkp.$(date +%Y%m%d-%H.%M.%S)
-
-echo 'Updating Traefik: ' $podname-proxy
-podman rm $podname-proxy
-podman create --name $podname-proxy --pod $podname \
-    --cgroups=disabled \
-    -v /$podname/proxy:/etc/traefik \
-        docker.io/library/traefik:2.6
-
-echo 'Updating DB container: ' $podname-db
-podman rm $podname-db
-podman create --name $podname-db --pod $podname \
-    --cgroups=disabled \
-    -v /$podname/db:/var/lib/postgresql/data \
-    -e POSTGRES_USER=odoo \
-    -e POSTGRES_PASSWORD=$MYSQLPWD \
-    -e POSTGRES_DB=postgres \
-        docker.io/library/postgres:13-alpine
-
+. set-env-pwd.sh
 
 echo 'Creating APP container: ' $podname-app
 podman rm $podname-app

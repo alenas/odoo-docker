@@ -8,7 +8,7 @@ ENV ODOO_VERSION 14.0
 
 # Install some deps, lessc and less-plugin-clean-css
 RUN apt-get update && \
-    apt-get upgrade && \
+    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
@@ -58,7 +58,7 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ buster-pgdg main' > /etc/
 RUN npm install -g rtlcss
 
 # Update pip and install pysftp for backups
-RUN pip3 install --upgrade pip
+RUN /usr/bin/python3 -m pip install --upgrade pip
 RUN pip3 install pysftp==0.2.8
 
 COPY ./odoo.deb /odoo.deb
@@ -79,8 +79,10 @@ COPY ../odoo.conf /etc/odoo/
 # Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
 RUN chown odoo /etc/odoo/odoo.conf \
     && mkdir -p /mnt/extra-addons \
-    && chown -R odoo /mnt/extra-addons
-VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
+    && chown -R odoo /mnt/extra-addons \
+    && mkdir -p /mnt/vialaurea \
+    && chown -R odoo /mnt/vialaurea
+VOLUME ["/var/lib/odoo", "/mnt/extra-addons", "/mnt/vialaurea"]
 
 # Set default user when running the container
 USER odoo

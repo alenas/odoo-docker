@@ -4,6 +4,7 @@ podname=odoo
 mkdir -p /$podname/data
 mkdir -p /$podname/config
 mkdir -p /$podname/odoo-addons
+mkdir -p /$podname/vialaurea
 
 mkdir -p /$podname/proxy
 
@@ -63,6 +64,7 @@ podman create --name $podname-app --pod $podname \
     -v /$podname/data:/var/lib/odoo \
     -v /$podname/config:/etc/odoo \
     -v /$podname/odoo-addons:/mnt/extra-addons \
-        localhost/al3nas/odoo:15.0.03.26
+    -v /$podname/vialaurea:/mnt/vialaurea \
+       localhost/al3nas/odoo:15.0.03.26
         
 echo 'DONE !'
