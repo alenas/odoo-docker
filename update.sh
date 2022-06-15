@@ -19,7 +19,8 @@ systemctl disable container-$podname-proxy
 # in case pod was started not from systemctl
 podman pod stop $podname
 
-#echo 'Backing up...'
+echo 'Backing up...'
+rm /odoo/data/odoo.log
 rsync -ah --info=progress2 --exclude=/odoo/data/backups/ --exclude=/odoo/data/odoo.log /odoo/ ~/backup/odoo-dir-bkp.$(date +%Y%m%d-%H.%M.%S)
 
 echo 'Updating Traefik: ' $podname-proxy

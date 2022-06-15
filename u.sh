@@ -1,6 +1,6 @@
 #!/bin/bash
 podname=odoo
-version=14.0.05.02
+version=14.1.06.15
 
 ### check if install is already there
 if [ ! -f set-env-pwd.sh ]; then
@@ -14,6 +14,8 @@ systemctl disable container-$podname-app
 systemctl disable container-$podname-db
 systemctl disable container-$podname-proxy
 
+### clean the log
+rm /odoo/data/odoo.log
 
 . set-env-pwd.sh
 

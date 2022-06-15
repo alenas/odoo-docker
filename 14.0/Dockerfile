@@ -68,7 +68,7 @@ RUN apt-get update \
     && rm /odoo.deb
 
 # Additional odoo modules
-RUN pip3 install odoo14-addon-attachment-unindex-content odoo14-addon-auto-backup odoo14-addon-account-invoice-force-number odoo14-addon-mail-debrand odoo14-addon-web-decimal-numpad-dot google_auth
+#RUN pip3 install odoo14-addon-attachment-unindex-content odoo14-addon-auto-backup odoo14-addon-account-invoice-force-number odoo14-addon-mail-debrand odoo14-addon-web-decimal-numpad-dot google_auth
 
 RUN apt-get clean all
 

@@ -60,7 +60,7 @@ RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' > /et
 RUN npm install -g rtlcss
 
 # Update pip and install pysftp for backups
-RUN pip3 install --upgrade pip
+RUN /usr/bin/python3 -m pip install --upgrade pip
 RUN pip3 install pysftp==0.2.8
 
 COPY ./odoo.deb /odoo.deb
