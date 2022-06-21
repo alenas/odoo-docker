@@ -3,10 +3,11 @@ if [ ! -f odoo.deb ]; then
      exit 1
 fi
 
-version=14.1.$(date +%m.%d)
+version=14.0.$(date +%m.%d)
 
-podman pull debian:buster-slim
+#podman pull debian:buster-slim
 podman build -t al3nas/odoo:$version \
     --runtime=/usr/lib/cri-o-runc/sbin/runc \
+    --security-opt seccomp=unconfined \
     --squash \
     -f Dockerfile

@@ -27,14 +27,14 @@ echo 'Updating Traefik: ' $podname-proxy
 podman rm $podname-proxy
 podman create --name $podname-proxy --pod $podname \
     --cgroups=disabled \
-    -v /$podname/proxy:/etc/traefik \
-        docker.io/library/traefik:2.6
+    -v /$podname/proxy:/etc/traefik:U \
+        docker.io/library/traefik:2.7
 
 echo 'Updating DB container: ' $podname-db
 podman rm $podname-db
 podman create --name $podname-db --pod $podname \
     --cgroups=disabled \
-    -v /$podname/db:/var/lib/postgresql/data \
+    -v /$podname/db:/var/lib/postgresql/data:U \
     -e POSTGRES_USER=odoo \
     -e POSTGRES_PASSWORD=$MYSQLPWD \
     -e POSTGRES_DB=postgres \
@@ -48,10 +48,10 @@ podman create --name $podname-app --pod $podname \
     -e HOST=127.0.0.1 \
     -e USER=odoo \
     -e PASSWORD=$MYSQLPWD \
-    -v /$podname/data:/var/lib/odoo \
-    -v /$podname/config:/etc/odoo \
-    -v /$podname/odoo-addons:/mnt/extra-addons \
-    -v /$podname/vialaurea:/mnt/vialaurea \
+    -v /$podname/data:/var/lib/odoo:U \
+    -v /$podname/config:/etc/odoo:U \
+    -v /$podname/odoo-addons:/mnt/extra-addons:U \
+    -v /$podname/vialaurea:/mnt/vialaurea:U \
         localhost/al3nas/odoo:$version
 
 echo "Creating new services"

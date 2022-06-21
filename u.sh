@@ -1,6 +1,6 @@
 #!/bin/bash
 podname=odoo
-version=14.1.06.15
+version=14.0.06.16
 
 ### check if install is already there
 if [ ! -f set-env-pwd.sh ]; then
@@ -26,10 +26,10 @@ podman create --name $podname-app --pod $podname \
     -e HOST=127.0.0.1 \
     -e USER=odoo \
     -e PASSWORD=$MYSQLPWD \
-    -v /$podname/data:/var/lib/odoo \
-    -v /$podname/config:/etc/odoo \
-    -v /$podname/odoo-addons:/mnt/extra-addons \
-    -v /$podname/vialaurea:/mnt/vialaurea \
+    -v /$podname/data:/var/lib/odoo:U \
+    -v /$podname/config:/etc/odoo:U \
+    -v /$podname/odoo-addons:/mnt/extra-addons:U \
+    -v /$podname/vialaurea:/mnt/vialaurea:U \
         localhost/al3nas/odoo:$version
 
 echo "Creating new services"

@@ -1,5 +1,12 @@
 #!/bin/bash
 podname=odoo
+pod_domain=test.pir.lt
+odoo_version=14.0.06.16
+
+container_options=" \
+    --cgroups=disabled \
+    --privileged \
+    --security-opt seccomp=unconfined"
 
 mkdir -p /$podname/data
 mkdir -p /$podname/config
@@ -29,42 +36,50 @@ if [ ! -f /$podname/proxy/traefik.yaml ]; then
     chmod -R 666 /$podname/proxy
 fi
 
-
 echo 'Creating pod: ' $podname
-### create pod
-podman pod create -n $podname --network=podman --hostname pir.lt \
+### create pod --network=podman
+podman pod create -n $podname --hostname $pod_domain \
     -p 80:80/tcp -p 443:443/tcp -p 8080:8080/tcp
 
-echo 'Starting pod: ' $podname
-#podman pod start $podname
-
-echo 'Running DB container: ' $podname-db
+echo 'Creating DB container: ' $podname-db
 ### create db container
 podman create --name $podname-db --pod $podname \
-    --cgroups=disabled \
-    -v /$podname/db:/var/lib/postgresql/data \
+    $container_options \
+    -v /$podname/db:/var/lib/postgresql/data:U \
     -e POSTGRES_USER=odoo \
     -e POSTGRES_PASSWORD=$MYSQLPWD \
     -e POSTGRES_DB=postgres \
-        docker.io/library/postgres:14-alpine
+        docker.io/library/postgres:13-alpine
 
-echo 'Running traefik reverse-proxy...'
+echo 'Creating traefik reverse-proxy...'
 podman create --name $podname-proxy --pod $podname \
-    --cgroups=disabled \
-    -v /$podname/proxy:/etc/traefik \
-        docker.io/library/traefik:2.6
+    $container_options \
+    -v /$podname/proxy:/etc/traefik:U \
+        docker.io/library/traefik:2.7
 
-echo 'Running APP container: ' $podname-app
+echo 'Creating APP container: ' $podname-app
 ### create app container - run and then attach to
 podman create --name $podname-app --pod $podname \
-    --cgroups=disabled \
+    $container_options \
     -e HOST=127.0.0.1 \
     -e USER=odoo \
     -e PASSWORD=$MYSQLPWD \
-    -v /$podname/data:/var/lib/odoo \
-    -v /$podname/config:/etc/odoo \
-    -v /$podname/odoo-addons:/mnt/extra-addons \
-    -v /$podname/vialaurea:/mnt/vialaurea \
-       localhost/al3nas/odoo:15.0.03.26
+    -v /$podname/data:/var/lib/odoo:U \
+    -v /$podname/config:/etc/odoo:U \
+    -v /$podname/odoo-addons:/mnt/extra-addons:U \
+    -v /$podname/vialaurea:/mnt/vialaurea:U \
+       localhost/al3nas/odoo:$odoo_version
         
-echo 'DONE !'
+echo "Creating new services"
+podman generate systemd -f -n -t=30 $podname
+mv -f *.service /etc/systemd/system/
+
+echo "Enabling services"
+systemctl enable pod-$podname
+systemctl enable container-$podname-proxy
+systemctl enable container-$podname-app
+systemctl enable container-$podname-db
+
+systemctl start pod-$podname
+
+echo "Finished ..."
