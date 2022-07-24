@@ -1,0 +1,9 @@
+/var/lib/odoo/odoo.log { 
+  daily            # rotate logs file daily
+  rotate 7         # keep 7 old log files after rotation
+  maxage 7         # Any rotated log files which are older than 7 days will be deleted.
+  notifempty       # if there is no backup file, don't throw an error
+  compress         # compress the files
+  copytruncate
+  missingok
+}

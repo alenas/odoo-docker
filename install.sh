@@ -3,10 +3,7 @@ podname=odoo
 pod_domain=test.pir.lt
 odoo_version=14.0.06.16
 
-container_options=" \
-    --cgroups=disabled \
-    --privileged \
-    --security-opt seccomp=unconfined"
+container_options="--cgroups=disabled"
 
 mkdir -p /$podname/data
 mkdir -p /$podname/config
@@ -19,7 +16,7 @@ mkdir -p /$podname/db
 
 if [ ! -f set-env-pwd.sh ]; then
     echo 'Generating random SQL passwords and saving to set-env.pwd.sh'
-    . generate-mysql-pwd.sh
+    . etc/generate-mysql-pwd.sh
 else
     . set-env-pwd.sh
 fi

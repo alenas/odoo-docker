@@ -1,6 +1,6 @@
 #!/bin/bash
 podname=odoo
-version=14.0.06.16
+version=14.0.220724
 
 ### check if install is already there
 if [ ! -f set-env-pwd.sh ]; then

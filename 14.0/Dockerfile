@@ -16,6 +16,8 @@ RUN apt-get update && \
         fonts-noto-cjk \
         gnupg \
         libssl-dev \
+        logrotate \
+        cron \
         node-less \
         nano \
         npm \
@@ -74,11 +76,11 @@ RUN apt-get clean all
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
-COPY ../odoo.conf /etc/odoo/
+COPY --chown=odoo ../odoo.conf /etc/odoo/
+COPY ./etc/logrotate.d/. /etc/logrotate.d
 
 # Set permissions and Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
-RUN chown odoo /etc/odoo/odoo.conf \
-    && mkdir -p /mnt/extra-addons \
+RUN mkdir -p /mnt/extra-addons \
     && chown -R odoo /mnt/extra-addons \
     && mkdir -p /mnt/vialaurea \
     && chown -R odoo /mnt/vialaurea
