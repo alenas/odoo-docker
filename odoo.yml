@@ -1,0 +1,117 @@
+# Podman: podman play kube odoo.yml
+# Kubernetes: kubectl create -f
+#
+# Created with podman-3.4.2
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2023-01-24T22:41:11Z"
+  labels:
+    app: odoo
+  name: odoo
+spec:
+  ports:
+  - name: "web"
+    port: 80
+    targetPort: 80
+  - name: "ssl"
+    port: 443
+    targetPort: 443
+  # - name: "dashboard" # Remove
+  #   port: 8080
+  #   targetPort: 8080
+  selector:
+    app: odoo
+  type: NodePort
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2023-03-21T18:36:43Z"
+  labels:
+    app: odoo
+  name: odoo
+spec:
+  containers:
+  - args:
+    - postgres
+    image: docker.io/library/postgres:13-alpine
+    name: db
+    ports:
+    - containerPort: 5432
+    #  hostPort: 5432
+    env:
+      - name: POSTGRES_USER
+        value: odoo
+      - name: POSTGRES_PASSWORD
+        value: 'postgres'
+      - name: POSTGRES_DB
+        value: postgres
+    volumeMounts:
+    - mountPath: /var/lib/postgresql/data
+      name: data-postgres
+
+  - args:
+    - traefik
+    image: docker.io/library/traefik:2.7
+    name: proxy
+    ports:
+    - containerPort: 80
+      hostPort: 80
+    - containerPort: 443
+      hostPort: 443
+    - containerPort: 8080
+      #hostPort: 8080
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /etc/traefik
+      name: data-traefik
+
+  - args:
+    - odoo
+    image: localhost/odoo:latest
+    name: app
+    env:
+      - name: HOST
+        value: 127.0.0.1
+      - name: USER
+        value: odoo
+      - name: PASSWORD
+        value: 'postgres'
+    volumeMounts:
+    - mountPath: /var/lib/odoo
+      name: data-odoo
+    - mountPath: /etc/odoo
+      name: data-odoo-config
+    - mountPath: /mnt/extra-addons
+      name: data-addons
+    - mountPath: /mnt/vialaurea
+      name: data-vialaurea
+  restartPolicy: Always
+
+  volumes:
+  - hostPath:
+      path: /odoo/db
+      type: Directory
+    name: data-postgres
+  - hostPath:
+      path: /odoo/proxy
+      type: Directory
+    name: data-traefik
+  - hostPath:
+      path: /odoo/data
+      type: Directory
+    name: data-odoo
+  - hostPath:
+      path: /odoo/config
+      type: Directory
+    name: data-odoo-config
+  - hostPath:
+      path: /odoo/odoo-addons
+      type: Directory
+    name: data-addons
+  - hostPath:
+      path: /odoo/vialaurea
+      type: Directory
+    name: data-vialaurea

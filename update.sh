@@ -1,11 +1,11 @@
 #!/bin/bash
 podname=odoo
-version=14.0.$(date +%m.%d)
+version=latest
 
 ### check if install is already there
 if [ ! -f set-env-pwd.sh ]; then
      echo 'Seems like there is no existing install, exiting!'
-     exit 1
+     return 1
 fi
 
 . set-env-pwd.sh
@@ -21,7 +21,7 @@ podman pod stop $podname
 
 echo 'Backing up...'
 rm /odoo/data/odoo.log
-rsync -ah --info=progress2 --exclude=/odoo/data/backups/ --exclude=/odoo/data/odoo.log /odoo/ ~/backup/odoo-dir-bkp.$(date +%Y%m%d-%H.%M.%S)
+#rsync -ah --info=progress2 --exclude=/odoo/data/backups/ --exclude=/odoo/data/odoo.log /odoo/ ~/backup/odoo-dir-bkp.$(date +%Y%m%d-%H.%M.%S)
 
 echo 'Updating Traefik: ' $podname-proxy
 podman rm $podname-proxy

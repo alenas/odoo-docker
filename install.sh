@@ -1,7 +1,7 @@
 #!/bin/bash
 podname=odoo
 pod_domain=test.pir.lt
-odoo_version=14.0.06.16
+odoo_version=latest
 
 container_options="--cgroups=disabled"
 
@@ -65,7 +65,7 @@ podman create --name $podname-app --pod $podname \
     -v /$podname/config:/etc/odoo:U \
     -v /$podname/odoo-addons:/mnt/extra-addons:U \
     -v /$podname/vialaurea:/mnt/vialaurea:U \
-       localhost/al3nas/odoo:$odoo_version
+       localhost/odoo:$odoo_version
         
 echo "Creating new services"
 podman generate systemd -f -n -t=30 $podname
